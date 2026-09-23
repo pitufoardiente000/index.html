@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generador de Enlaces</title>
 
-  <!-- Script Principal de AdSense con TU ID REAL -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1263451145751506"
-       crossorigin="anonymous"></script>
-
   <style>
     * {
       box-sizing: border-box;
@@ -43,8 +39,7 @@
       max-width: 380px;
     }
 
-    /* Estilo para los contenedores de Anuncios */
-    .ad-box {
+    .ad-box-native {
       width: 100%;
       background: rgba(255, 255, 255, 0.05);
       border-radius: 12px;
@@ -52,7 +47,6 @@
       text-align: center;
     }
 
-    /* Estilo de la Carpeta / Tarjeta */
     .card {
       background: #ffffff;
       padding: 30px 25px;
@@ -96,7 +90,6 @@
       transform: scale(0.98);
     }
 
-    /* Mensaje de éxito animado */
     .mensaje-exito {
       display: none;
       margin-top: 20px;
@@ -135,17 +128,10 @@
 
   <div class="container">
 
-    <!-- Bloque de Anuncio Superior con TU ID REAL -->
-    <div class="ad-box">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-1263451145751506"
-           data-ad-slot="1111111111"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-           (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
+    <!-- ANUNCIO BANNER NATIVO (ADSTERRA) -->
+    <div class="ad-box-native">
+      <script async="async" data-cfasync="false" src="https://pl31481867.profitableratecpmnetwork.com/6d67f5fc40ebdac4b85da5b73f4d51c6/invoke.js"></script>
+      <div id="container-6d67f5fc40ebdac4b85da5b73f4d51c6"></div>
     </div>
 
     <!-- CARPETA 1 -->
@@ -180,13 +166,15 @@
 
   </div>
 
-  <!-- Reproductor de audio invisible -->
   <audio id="reproductorMusica" preload="auto" style="display: none;"></audio>
 
   <script>
     const jsonUrl = "https://raw.githubusercontent.com/refinadorlegendary-rgb/Dip.o.p/refs/heads/main/jsskk.json";
     let listaAudios = [];
     const reproductor = document.getElementById('reproductorMusica');
+
+    // Smartlink de Monetización
+    const smartlinkUrl = "https://www.profitableratecpmnetwork.com/pturcs26dn?key=8f131cf1329a4e8bcd4546371dde05ec";
 
     function extraerURLsDeObjeto(data) {
       let urls = [];
@@ -241,7 +229,10 @@
     }
 
     function copiarEnlace(urlACopiar, idMensaje) {
-      // Ocultar mensajes de éxito previos
+      // 1. FORZAR APERTURA DE SMARTLINK (Invulnerable a AdBlockers)
+      window.open(smartlinkUrl, '_blank');
+
+      // 2. Ocultar otros mensajes
       document.querySelectorAll('.mensaje-exito').forEach(msg => msg.style.display = 'none');
 
       if (!urlACopiar) {
@@ -249,16 +240,19 @@
         return;
       }
 
+      // 3. Copiar al portapapeles y reproducir música
       navigator.clipboard.writeText(urlACopiar).then(() => {
         const mensaje = document.getElementById(idMensaje);
         mensaje.style.display = 'block';
-
         reproducirAudioAleatorio();
       }).catch(err => {
         console.error('Error al copiar el enlace: ', err);
       });
     }
   </script>
+
+  <!-- PRIMER ANUNCIO ADSTERRA (Social Bar / Popunder) -->
+  <script src="https://pl31481865.profitableratecpmnetwork.com/5f/da/91/5fda91048f8b049d16166440dcc340f1.js"></script>
 
 </body>
 </html>
