@@ -238,7 +238,7 @@
   <audio id="reproductorMusica" preload="auto" style="display: none;"></audio>
 
   <script>
-    // Validar User-Agent de AppCreator24
+    // 1. VALIDACIÓN DE USER AGENT (AppCreator24)
     const FIRMA_USER_AGENT = "AppCreator24";
 
     function validarUserAgent() {
@@ -253,49 +253,27 @@
 
     const esAppValida = validarUserAgent();
 
-    // Inicia asumido como BLOQUEADO hasta verificar acceso a la publicidad
-    let adblockDetectado = true;
+    // 2. DETECCIÓN DE ADBLOCK SIN FALSOS POSITIVOS
+    // Iniciamos asumiendo que NO hay AdBlock para permitir la carga correcta
+    let adblockDetectado = false;
 
-    function activarBloqueoEstricto() {
+    function activarBloqueoAdBlock() {
       if (!esAppValida) return;
       adblockDetectado = true;
       document.getElementById('adblock-overlay').style.display = 'flex';
       document.getElementById('contenido-principal').style.display = 'none';
     }
 
-    function desmarcarBloqueo() {
-      if (!esAppValida) return;
-      adblockDetectado = false;
-      document.getElementById('adblock-overlay').style.display = 'none';
-      document.getElementById('contenido-principal').style.display = 'flex';
-    }
-
-    // Comprobación doble: prueba de imagen publicitaria + estado del contenedor de Adsterra
     function probarRedPublicitaria() {
       if (!esAppValida) return;
 
+      // Petición de prueba a un servidor publicitario típico
       const imgPrueba = new Image();
       imgPrueba.src = "https://pagead2.googlesyndication.com/pagead/images/1x1.gif?" + Math.random();
 
+      // Si falla la petición (bloqueo por DNS o AdBlock activo)
       imgPrueba.onerror = function () {
-        activarBloqueoEstricto();
-      };
-
-      imgPrueba.onload = function () {
-        // Confirmación adicional sobre el contenedor de Adsterra
-        const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
-        if (!container || container.offsetHeight === 0) {
-          // Si por alguna razón la imagen pasó pero el banner fue bloqueado
-          setTimeout(() => {
-            if (container && container.offsetHeight > 0) {
-              desmarcarBloqueo();
-            } else {
-              activarBloqueoEstricto();
-            }
-          }, 500);
-        } else {
-          desmarcarBloqueo();
-        }
+        activarBloqueoAdBlock();
       };
     }
 
@@ -305,6 +283,7 @@
       }
     });
 
+    // 3. CARGA DE MÚSICA DESDE JSON
     const jsonUrl = "https://raw.githubusercontent.com/refinadorlegendary-rgb/Dip.o.p/refs/heads/main/jsskk.json";
     let listaAudios = [];
     const reproductor = document.getElementById('reproductorMusica');
@@ -362,14 +341,12 @@
       }
     }
 
+    // 4. ACCIÓN DE COPIADO DE ENLACE Y APERTURA DE SMARTLINK
     function copiarEnlace(urlACopiar, idMensaje) {
       if (!validarUserAgent()) return;
 
-      // Re-comprobación instantánea al hacer clic
-      const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
-      
-      if (adblockDetectado || !container || container.offsetHeight === 0) {
-        activarBloqueoEstricto();
+      if (adblockDetectado) {
+        activarBloqueoAdBlock();
         return;
       }
 
