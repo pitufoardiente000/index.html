@@ -115,7 +115,7 @@
     }
 
     /* PANTALLAS DE BLOQUEO */
-    #adblock-overlay, #useragent-overlay {
+    #adblock-overlay {
       display: none;
       position: fixed;
       top: 0;
@@ -178,17 +178,9 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO POR NAVEGADOR EXTERNO -->
-  <div id="useragent-overlay">
-    <div class="adblock-card">
-      <h3>🚫 Acceso Restringido</h3>
-      <p>Esta página solo está disponible desde la <b>aplicación móvil oficial</b>.</p>
-    </div>
-  </div>
-
-  <!-- PANTALLA DE BLOQUEO POR ADBLOCK -->
+  <!-- OVERLAY UNIFICADO PARA BLOQUEOS -->
   <div id="adblock-overlay">
-    <div class="adblock-card">
+    <div class="adblock-card" id="tarjeta-bloqueo">
       <h3>🚫 Bloqueador Detectado</h3>
       <p>Para seguir generando enlaces, por favor <b>desactiva tu bloqueador de anuncios (AdBlock / DNS)</b> y recarga la página.</p>
       <button class="btn-recargar" onclick="window.location.reload()">Reintentar Carga</button>
@@ -238,52 +230,45 @@
   <audio id="reproductorMusica" preload="auto" style="display: none;"></audio>
 
   <script>
-    // 1. VALIDACIÓN DE USER AGENT (AppCreator24)
-    const FIRMA_USER_AGENT = "AppCreator24";
+    // 1. VERIFICACIÓN DE USER AGENT (AppCreator24)
+    const FIRMA_APP = "AppCreator24";
 
-    function validarUserAgent() {
+    function esAppOficial() {
       const ua = navigator.userAgent || navigator.vendor || window.opera;
-      if (!ua.includes(FIRMA_USER_AGENT)) {
-        document.getElementById('useragent-overlay').style.display = 'flex';
-        document.getElementById('contenido-principal').style.display = 'none';
-        return false;
-      }
-      return true;
+      return ua.includes(FIRMA_APP);
     }
 
-    const esAppValida = validarUserAgent();
-
-    // 2. DETECCIÓN DE ADBLOCK SIN FALSOS POSITIVOS
-    // Iniciamos asumiendo que NO hay AdBlock para permitir la carga correcta
-    let adblockDetectado = false;
-
-    function activarBloqueoAdBlock() {
-      if (!esAppValida) return;
-      adblockDetectado = true;
+    if (!esAppOficial()) {
+      document.getElementById('tarjeta-bloqueo').innerHTML = `
+        <h3>🚫 Acceso Restringido</h3>
+        <p>Esta aplicación solo está disponible desde la <b>aplicación móvil oficial</b>.</p>
+      `;
       document.getElementById('adblock-overlay').style.display = 'flex';
       document.getElementById('contenido-principal').style.display = 'none';
     }
 
-    function probarRedPublicitaria() {
-      if (!esAppValida) return;
+    // 2. VERIFICACIÓN DE ADBLOCK (SIN AFECTAR LOS ANUNCIOS DE ADSTERRA)
+    let adblockDetectado = false;
 
-      // Petición de prueba a un servidor publicitario típico
+    function probarRedPublicitaria() {
+      if (!esAppOficial()) return;
+
       const imgPrueba = new Image();
+      // Prueba de conexión con servidor publicitario global
       imgPrueba.src = "https://pagead2.googlesyndication.com/pagead/images/1x1.gif?" + Math.random();
 
-      // Si falla la petición (bloqueo por DNS o AdBlock activo)
       imgPrueba.onerror = function () {
-        activarBloqueoAdBlock();
+        adblockDetectado = true;
+        document.getElementById('adblock-overlay').style.display = 'flex';
+        document.getElementById('contenido-principal').style.display = 'none';
       };
     }
 
     window.addEventListener('load', () => {
-      if (esAppValida) {
-        probarRedPublicitaria();
-      }
+      probarRedPublicitaria();
     });
 
-    // 3. CARGA DE MÚSICA DESDE JSON
+    // 3. CARGA DE MÚSICA Y REPRODUCTOR
     const jsonUrl = "https://raw.githubusercontent.com/refinadorlegendary-rgb/Dip.o.p/refs/heads/main/jsskk.json";
     let listaAudios = [];
     const reproductor = document.getElementById('reproductorMusica');
@@ -341,14 +326,9 @@
       }
     }
 
-    // 4. ACCIÓN DE COPIADO DE ENLACE Y APERTURA DE SMARTLINK
+    // 4. FUNCIÓN COPIAR ENLACE
     function copiarEnlace(urlACopiar, idMensaje) {
-      if (!validarUserAgent()) return;
-
-      if (adblockDetectado) {
-        activarBloqueoAdBlock();
-        return;
-      }
+      if (!esAppOficial() || adblockDetectado) return;
 
       document.querySelectorAll('.mensaje-exito').forEach(msg => msg.style.display = 'none');
 
