@@ -114,8 +114,8 @@
       animation: bounce 1s infinite alternate;
     }
 
-    /* PANTALLAS DE BLOQUEO */
-    #adblock-overlay, #useragent-overlay {
+    /* PANTALLA DE BLOQUEO */
+    #adblock-overlay {
       display: none;
       position: fixed;
       top: 0;
@@ -178,15 +178,6 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO POR NAVEGADOR EXTERNO -->
-  <div id="useragent-overlay">
-    <div class="adblock-card">
-      <h3>🚫 Acceso Denegado</h3>
-      <p>Esta página solo está disponible desde la <b>aplicación móvil oficial</b>.</p>
-    </div>
-  </div>
-
-  <!-- PANTALLA DE BLOQUEO POR ADBLOCK -->
   <div id="adblock-overlay">
     <div class="adblock-card">
       <h3>🚫 Bloqueador Detectado</h3>
@@ -238,23 +229,7 @@
   <audio id="reproductorMusica" preload="auto" style="display: none;"></audio>
 
   <script>
-    // 1. VALIDACIÓN DE USER AGENT (SOLO ACCESO DESDE APPCREATOR24)
-    // Si usaste un User-Agent personalizado en el panel de AppCreator24, reemplaza "AppCreator24" por tu clave
-    const CLAVE_USER_AGENT = "AppCreator24";
-
-    function validarUserAgent() {
-      const ua = navigator.userAgent || navigator.vendor || window.opera;
-      if (!ua.includes(CLAVE_USER_AGENT)) {
-        document.getElementById('useragent-overlay').style.display = 'flex';
-        document.getElementById('contenido-principal').style.display = 'none';
-        return false;
-      }
-      return true;
-    }
-
-    const esAppValida = validarUserAgent();
-
-    // 2. DETECCIÓN DE ADBLOCK
+    // Inicia asumido como BLOQUEADO hasta verificar acceso a la publicidad
     let adblockDetectado = true;
 
     function activarBloqueoEstricto() {
@@ -269,9 +244,8 @@
       document.getElementById('contenido-principal').style.display = 'flex';
     }
 
+    // Comprobación doble: prueba de imagen publicitaria + estado del contenedor de Adsterra
     function probarRedPublicitaria() {
-      if (!esAppValida) return; // Si no es la app, detiene las pruebas
-
       const imgPrueba = new Image();
       imgPrueba.src = "https://pagead2.googlesyndication.com/pagead/images/1x1.gif?" + Math.random();
 
@@ -280,8 +254,10 @@
       };
 
       imgPrueba.onload = function () {
+        // Confirmación adicional sobre el contenedor de Adsterra
         const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
         if (!container || container.offsetHeight === 0) {
+          // Si por alguna razón la imagen pasó pero el banner fue bloqueado
           setTimeout(() => {
             if (container && container.offsetHeight > 0) {
               desmarcarBloqueo();
@@ -296,9 +272,7 @@
     }
 
     window.addEventListener('load', () => {
-      if (esAppValida) {
-        probarRedPublicitaria();
-      }
+      probarRedPublicitaria();
     });
 
     const jsonUrl = "https://raw.githubusercontent.com/refinadorlegendary-rgb/Dip.o.p/refs/heads/main/jsskk.json";
@@ -359,8 +333,7 @@
     }
 
     function copiarEnlace(urlACopiar, idMensaje) {
-      if (!validarUserAgent()) return;
-
+      // Re-comprobación instantánea al hacer clic
       const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
       
       if (adblockDetectado || !container || container.offsetHeight === 0) {
