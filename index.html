@@ -45,6 +45,7 @@
       border-radius: 12px;
       padding: 10px;
       text-align: center;
+      min-height: 60px;
     }
 
     .card {
@@ -113,6 +114,57 @@
       animation: bounce 1s infinite alternate;
     }
 
+    /* PANTALLA DE BLOQUEO */
+    #adblock-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #0d1117;
+      z-index: 999999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .adblock-card {
+      background: #161b22;
+      border: 1px solid #f85149;
+      padding: 30px 20px;
+      border-radius: 20px;
+      max-width: 340px;
+      box-shadow: 0 10px 30px rgba(248, 81, 73, 0.2);
+    }
+
+    .adblock-card h3 {
+      color: #f85149;
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+    }
+
+    .adblock-card p {
+      color: #c9d1d9;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .btn-recargar {
+      background: #f85149;
+      color: #ffffff;
+      border: none;
+      padding: 12px 25px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+    }
+
     @keyframes popIn {
       0% { opacity: 0; transform: scale(0.5); }
       100% { opacity: 1; transform: scale(1); }
@@ -126,7 +178,15 @@
 </head>
 <body>
 
-  <div class="container">
+  <div id="adblock-overlay">
+    <div class="adblock-card">
+      <h3>🚫 Bloqueador Detectado</h3>
+      <p>Para seguir generando enlaces, por favor <b>desactiva tu bloqueador de anuncios (AdBlock / DNS)</b> y recarga la página.</p>
+      <button class="btn-recargar" onclick="window.location.reload()">Reintentar Carga</button>
+    </div>
+  </div>
+
+  <div class="container" id="contenido-principal">
 
     <!-- ANUNCIO BANNER NATIVO (ADSTERRA) -->
     <div class="ad-box-native">
@@ -169,11 +229,37 @@
   <audio id="reproductorMusica" preload="auto" style="display: none;"></audio>
 
   <script>
+    let adblockDetectado = false;
+
+    function activarBloqueoEstricto() {
+      adblockDetectado = true;
+      document.getElementById('adblock-overlay').style.display = 'flex';
+      document.getElementById('contenido-principal').style.display = 'none';
+    }
+
+    // Comprobación Ultra-Precisa utilizando recursos de red publicitarios
+    function probarRedPublicitaria() {
+      const imgPrueba = new Image();
+      // URL señuelo alojada en red publicitaria común que AdBlock/DNS bloquean inmediatamente
+      imgPrueba.src = "https://pagead2.googlesyndication.com/pagead/images/1x1.gif?" + Math.random();
+
+      imgPrueba.onerror = function () {
+        activarBloqueoEstricto();
+      };
+
+      imgPrueba.onload = function () {
+        // La publicidad NO está bloqueada por DNS ni AdBlock
+        adblockDetectado = false;
+      };
+    }
+
+    window.addEventListener('load', () => {
+      probarRedPublicitaria();
+    });
+
     const jsonUrl = "https://raw.githubusercontent.com/refinadorlegendary-rgb/Dip.o.p/refs/heads/main/jsskk.json";
     let listaAudios = [];
     const reproductor = document.getElementById('reproductorMusica');
-
-    // Smartlink de Monetización
     const smartlinkUrl = "Https://www.profitableratecpmnetwork.com/pturcs26dn?key=8f131cf1329a4e8bcd4546371dde05ec";
 
     function extraerURLsDeObjeto(data) {
@@ -229,6 +315,11 @@
     }
 
     function copiarEnlace(urlACopiar, idMensaje) {
+      if (adblockDetectado) {
+        activarBloqueoEstricto();
+        return;
+      }
+
       document.querySelectorAll('.mensaje-exito').forEach(msg => msg.style.display = 'none');
 
       if (!urlACopiar) {
@@ -236,16 +327,10 @@
         return;
       }
 
-      // 1. Copiar el enlace al portapapeles
       navigator.clipboard.writeText(urlACopiar).then(() => {
-        // 2. Mostrar el mensaje de éxito
         const mensaje = document.getElementById(idMensaje);
         mensaje.style.display = 'block';
-
-        // 3. Reproducir audio
         reproducirAudioAleatorio();
-
-        // 4. Abrir la publicidad en una pestaña nueva
         window.open(smartlinkUrl, '_blank');
       }).catch(err => {
         console.error('Error al copiar el enlace: ', err);
