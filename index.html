@@ -229,7 +229,8 @@
   <audio id="reproductorMusica" preload="auto" style="display: none;"></audio>
 
   <script>
-    let adblockDetectado = false;
+    // Inicia asumido como BLOQUEADO hasta verificar acceso a la publicidad
+    let adblockDetectado = true;
 
     function activarBloqueoEstricto() {
       adblockDetectado = true;
@@ -237,10 +238,15 @@
       document.getElementById('contenido-principal').style.display = 'none';
     }
 
-    // Comprobación Ultra-Precisa utilizando recursos de red publicitarios
+    function desmarcarBloqueo() {
+      adblockDetectado = false;
+      document.getElementById('adblock-overlay').style.display = 'none';
+      document.getElementById('contenido-principal').style.display = 'flex';
+    }
+
+    // Comprobación doble: prueba de imagen publicitaria + estado del contenedor de Adsterra
     function probarRedPublicitaria() {
       const imgPrueba = new Image();
-      // URL señuelo alojada en red publicitaria común que AdBlock/DNS bloquean inmediatamente
       imgPrueba.src = "https://pagead2.googlesyndication.com/pagead/images/1x1.gif?" + Math.random();
 
       imgPrueba.onerror = function () {
@@ -248,8 +254,20 @@
       };
 
       imgPrueba.onload = function () {
-        // La publicidad NO está bloqueada por DNS ni AdBlock
-        adblockDetectado = false;
+        // Confirmación adicional sobre el contenedor de Adsterra
+        const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
+        if (!container || container.offsetHeight === 0) {
+          // Si por alguna razón la imagen pasó pero el banner fue bloqueado
+          setTimeout(() => {
+            if (container && container.offsetHeight > 0) {
+              desmarcarBloqueo();
+            } else {
+              activarBloqueoEstricto();
+            }
+          }, 500);
+        } else {
+          desmarcarBloqueo();
+        }
       };
     }
 
@@ -315,7 +333,10 @@
     }
 
     function copiarEnlace(urlACopiar, idMensaje) {
-      if (adblockDetectado) {
+      // Re-comprobación instantánea al hacer clic
+      const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
+      
+      if (adblockDetectado || !container || container.offsetHeight === 0) {
         activarBloqueoEstricto();
         return;
       }
