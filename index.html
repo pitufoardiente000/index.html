@@ -115,7 +115,7 @@
     }
 
     /* PANTALLAS DE BLOQUEO */
-    #adblock-overlay, #app-overlay {
+    #adblock-overlay, #useragent-overlay {
       display: none;
       position: fixed;
       top: 0;
@@ -178,15 +178,15 @@
 </head>
 <body>
 
-  <!-- VENTANA BLOQUEADORA DE NAVEGADOR EXTERNO -->
-  <div id="app-overlay">
+  <!-- PANTALLA DE BLOQUEO POR NAVEGADOR EXTERNO -->
+  <div id="useragent-overlay">
     <div class="adblock-card">
       <h3>🚫 Acceso Denegado</h3>
-      <p>Esta página solo se puede abrir y utilizar desde la <b>aplicación oficial</b>.</p>
+      <p>Esta página solo está disponible desde la <b>aplicación móvil oficial</b>.</p>
     </div>
   </div>
 
-  <!-- VENTANA BLOQUEADORA DE ADBLOCK -->
+  <!-- PANTALLA DE BLOQUEO POR ADBLOCK -->
   <div id="adblock-overlay">
     <div class="adblock-card">
       <h3>🚫 Bloqueador Detectado</h3>
@@ -238,23 +238,23 @@
   <audio id="reproductorMusica" preload="auto" style="display: none;"></audio>
 
   <script>
-    // 1. RESTRICCIÓN DE USER AGENT (SOLO APPCREATOR24)
-    function verificarUserAgent() {
-      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-      
-      // Si el User-Agent NO incluye la firma de AppCreator24, bloquea la página inmediatamente
-      if (!userAgent.includes("AppCreator24")) {
-        document.getElementById('app-overlay').style.display = 'flex';
+    // 1. VALIDACIÓN DE USER AGENT (SOLO ACCESO DESDE APPCREATOR24)
+    // Si usaste un User-Agent personalizado en el panel de AppCreator24, reemplaza "AppCreator24" por tu clave
+    const CLAVE_USER_AGENT = "AppCreator24";
+
+    function validarUserAgent() {
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      if (!ua.includes(CLAVE_USER_AGENT)) {
+        document.getElementById('useragent-overlay').style.display = 'flex';
         document.getElementById('contenido-principal').style.display = 'none';
         return false;
       }
       return true;
     }
 
-    // Ejecuta la comprobación del User-Agent de inmediato
-    const esAppOficial = verificarUserAgent();
+    const esAppValida = validarUserAgent();
 
-    // 2. SISTEMA ANTI-ADBLOCK Y DNS
+    // 2. DETECCIÓN DE ADBLOCK
     let adblockDetectado = true;
 
     function activarBloqueoEstricto() {
@@ -270,7 +270,7 @@
     }
 
     function probarRedPublicitaria() {
-      if (!esAppOficial) return; // Si no es la app, no ejecuta la prueba de anuncios
+      if (!esAppValida) return; // Si no es la app, detiene las pruebas
 
       const imgPrueba = new Image();
       imgPrueba.src = "https://pagead2.googlesyndication.com/pagead/images/1x1.gif?" + Math.random();
@@ -296,7 +296,7 @@
     }
 
     window.addEventListener('load', () => {
-      if (esAppOficial) {
+      if (esAppValida) {
         probarRedPublicitaria();
       }
     });
@@ -359,7 +359,7 @@
     }
 
     function copiarEnlace(urlACopiar, idMensaje) {
-      if (!verificarUserAgent()) return;
+      if (!validarUserAgent()) return;
 
       const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
       
