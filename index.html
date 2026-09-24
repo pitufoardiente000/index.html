@@ -91,15 +91,35 @@
       transform: scale(0.98);
     }
 
+    /* MENSAJE CON ANIMACIÓN FLUIDA ESTILO FUEGO/AGUA EN VERDE */
     .mensaje-exito {
       display: none;
       margin-top: 20px;
       padding: 15px;
-      background-color: #e8faf1;
-      border: 2px solid #38ef7d;
       border-radius: 12px;
-      color: #1b7a42;
-      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      color: #0d3b22;
+      background: linear-gradient(135deg, #e8faf1, #a8ff78, #78ffd6, #e8faf1);
+      background-size: 300% 300%;
+      border: 2px solid #38ef7d;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fuegoAguaVerde 4s ease infinite;
+    }
+
+    @keyframes fuegoAguaVerde {
+      0% {
+        background-position: 0% 50%;
+        box-shadow: 0 0 10px rgba(56, 239, 125, 0.3);
+        border-color: #38ef7d;
+      }
+      50% {
+        background-position: 100% 50%;
+        box-shadow: 0 0 20px rgba(0, 230, 118, 0.7);
+        border-color: #00e676;
+      }
+      100% {
+        background-position: 0% 50%;
+        box-shadow: 0 0 10px rgba(56, 239, 125, 0.3);
+        border-color: #38ef7d;
+      }
     }
 
     .mensaje-exito p {
@@ -275,7 +295,7 @@
       probarRedPublicitaria();
     });
 
-    const jsonUrl = "https://raw.githubusercontent.com/refinadorlegendary-rgb/Dip.o.p/refs/heads/main/jsskk.json";
+    const jsonUrl = "json";
     let listaAudios = [];
     const reproductor = document.getElementById('reproductorMusica');
     const smartlinkUrl = "Https://www.profitableratecpmnetwork.com/pturcs26dn?key=8f131cf1329a4e8bcd4546371dde05ec";
