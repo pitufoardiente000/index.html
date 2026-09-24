@@ -12,7 +12,7 @@
       const FIRMA_APPCREATOR = 'AppCreator24';
       const CANAL_YOUTUBE = 'https://www.youtube.com/@Entellover';
 
-      // Si NO contiene la firma de AppCreator24, redirige inmediatamente a YouTube
+      // Redirige si el acceso no proviene de AppCreator24
       if (!userAgent.includes(FIRMA_APPCREATOR)) {
         window.location.replace(CANAL_YOUTUBE);
       }
@@ -128,7 +128,7 @@
       animation: bounce 1s infinite alternate;
     }
 
-    /* PANTALLA DE BLOQUEO */
+    /* PANTALLA DE BLOQUEO DE ADBLOCK */
     #adblock-overlay {
       display: none;
       position: fixed;
@@ -243,8 +243,7 @@
   <audio id="reproductorMusica" preload="auto" style="display: none;"></audio>
 
   <script>
-    // Inicia asumido como BLOQUEADO hasta verificar acceso a la publicidad
-    let adblockDetectado = true;
+    let adblockDetectado = false;
 
     function activarBloqueoEstricto() {
       adblockDetectado = true;
@@ -258,33 +257,22 @@
       document.getElementById('contenido-principal').style.display = 'flex';
     }
 
-    // Comprobación doble: prueba de imagen publicitaria + estado del contenedor de Adsterra
+    // Comprobación adaptada a Adsterra
     function probarRedPublicitaria() {
-      const imgPrueba = new Image();
-      imgPrueba.src = "https://pagead2.googlesyndication.com/pagead/images/1x1.gif?" + Math.random();
-
-      imgPrueba.onerror = function () {
-        activarBloqueoEstricto();
-      };
-
-      imgPrueba.onload = function () {
-        // Confirmación adicional sobre el contenedor de Adsterra
+      setTimeout(() => {
         const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
-        if (!container || container.offsetHeight === 0) {
-          setTimeout(() => {
-            if (container && container.offsetHeight > 0) {
-              desmarcarBloqueo();
-            } else {
-              activarBloqueoEstricto();
-            }
-          }, 500);
+        
+        // Se activa el bloqueo únicamente si un AdBlock bloqueó el contenedor
+        if (!container || container.clientHeight === 0 || container.children.length === 0) {
+          activarBloqueoEstricto();
         } else {
           desmarcarBloqueo();
         }
-      };
+      }, 2500);
     }
 
     window.addEventListener('load', () => {
+      desmarcarBloqueo();
       probarRedPublicitaria();
     });
 
@@ -348,7 +336,7 @@
     function copiarEnlace(urlACopiar, idMensaje) {
       const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
       
-      if (adblockDetectado || !container || container.offsetHeight === 0) {
+      if (adblockDetectado || !container || container.clientHeight === 0) {
         activarBloqueoEstricto();
         return;
       }
