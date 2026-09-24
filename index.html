@@ -114,7 +114,7 @@
       animation: bounce 1s infinite alternate;
     }
 
-    /* PANTALLAS DE BLOQUEO */
+    /* PANTALLA DE BLOQUEO */
     #adblock-overlay {
       display: none;
       position: fixed;
@@ -178,9 +178,8 @@
 </head>
 <body>
 
-  <!-- OVERLAY UNIFICADO PARA BLOQUEOS -->
   <div id="adblock-overlay">
-    <div class="adblock-card" id="tarjeta-bloqueo">
+    <div class="adblock-card">
       <h3>🚫 Bloqueador Detectado</h3>
       <p>Para seguir generando enlaces, por favor <b>desactiva tu bloqueador de anuncios (AdBlock / DNS)</b> y recarga la página.</p>
       <button class="btn-recargar" onclick="window.location.reload()">Reintentar Carga</button>
@@ -230,37 +229,45 @@
   <audio id="reproductorMusica" preload="auto" style="display: none;"></audio>
 
   <script>
-    // 1. VERIFICACIÓN DE USER AGENT (AppCreator24)
-    const FIRMA_APP = "AppCreator24";
+    // Inicia asumido como BLOQUEADO hasta verificar acceso a la publicidad
+    let adblockDetectado = true;
 
-    function esAppOficial() {
-      const ua = navigator.userAgent || navigator.vendor || window.opera;
-      return ua.includes(FIRMA_APP);
-    }
-
-    if (!esAppOficial()) {
-      document.getElementById('tarjeta-bloqueo').innerHTML = `
-        <h3>🚫 Acceso Restringido</h3>
-        <p>Esta aplicación solo está disponible desde la <b>aplicación móvil oficial</b>.</p>
-      `;
+    function activarBloqueoEstricto() {
+      adblockDetectado = true;
       document.getElementById('adblock-overlay').style.display = 'flex';
       document.getElementById('contenido-principal').style.display = 'none';
     }
 
-    // 2. VERIFICACIÓN DE ADBLOCK (SIN AFECTAR LOS ANUNCIOS DE ADSTERRA)
-    let adblockDetectado = false;
+    function desmarcarBloqueo() {
+      adblockDetectado = false;
+      document.getElementById('adblock-overlay').style.display = 'none';
+      document.getElementById('contenido-principal').style.display = 'flex';
+    }
 
+    // Comprobación doble: prueba de imagen publicitaria + estado del contenedor de Adsterra
     function probarRedPublicitaria() {
-      if (!esAppOficial()) return;
-
       const imgPrueba = new Image();
-      // Prueba de conexión con servidor publicitario global
       imgPrueba.src = "https://pagead2.googlesyndication.com/pagead/images/1x1.gif?" + Math.random();
 
       imgPrueba.onerror = function () {
-        adblockDetectado = true;
-        document.getElementById('adblock-overlay').style.display = 'flex';
-        document.getElementById('contenido-principal').style.display = 'none';
+        activarBloqueoEstricto();
+      };
+
+      imgPrueba.onload = function () {
+        // Confirmación adicional sobre el contenedor de Adsterra
+        const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
+        if (!container || container.offsetHeight === 0) {
+          // Si por alguna razón la imagen pasó pero el banner fue bloqueado
+          setTimeout(() => {
+            if (container && container.offsetHeight > 0) {
+              desmarcarBloqueo();
+            } else {
+              activarBloqueoEstricto();
+            }
+          }, 500);
+        } else {
+          desmarcarBloqueo();
+        }
       };
     }
 
@@ -268,7 +275,6 @@
       probarRedPublicitaria();
     });
 
-    // 3. CARGA DE MÚSICA Y REPRODUCTOR
     const jsonUrl = "https://raw.githubusercontent.com/refinadorlegendary-rgb/Dip.o.p/refs/heads/main/jsskk.json";
     let listaAudios = [];
     const reproductor = document.getElementById('reproductorMusica');
@@ -326,9 +332,14 @@
       }
     }
 
-    // 4. FUNCIÓN COPIAR ENLACE
     function copiarEnlace(urlACopiar, idMensaje) {
-      if (!esAppOficial() || adblockDetectado) return;
+      // Re-comprobación instantánea al hacer clic
+      const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
+      
+      if (adblockDetectado || !container || container.offsetHeight === 0) {
+        activarBloqueoEstricto();
+        return;
+      }
 
       document.querySelectorAll('.mensaje-exito').forEach(msg => msg.style.display = 'none');
 
