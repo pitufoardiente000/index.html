@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generador de Enlaces</title>
 
+  <script>
+    // VERIFICACIÓN DE USER-AGENT (APPCREATOR24)
+    (function() {
+      const userAgent = navigator.userAgent || '';
+      const FIRMA_APPCREATOR = 'AppCreator24';
+      const CANAL_YOUTUBE = 'https://www.youtube.com/@Entellover';
+
+      // Si NO contiene la firma de AppCreator24, redirige inmediatamente a YouTube
+      if (!userAgent.includes(FIRMA_APPCREATOR)) {
+        window.location.replace(CANAL_YOUTUBE);
+      }
+    })();
+  </script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -257,7 +271,6 @@
         // Confirmación adicional sobre el contenedor de Adsterra
         const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
         if (!container || container.offsetHeight === 0) {
-          // Si por alguna razón la imagen pasó pero el banner fue bloqueado
           setTimeout(() => {
             if (container && container.offsetHeight > 0) {
               desmarcarBloqueo();
@@ -333,7 +346,6 @@
     }
 
     function copiarEnlace(urlACopiar, idMensaje) {
-      // Re-comprobación instantánea al hacer clic
       const container = document.getElementById('container-6d67f5fc40ebdac4b85da5b73f4d51c6');
       
       if (adblockDetectado || !container || container.offsetHeight === 0) {
